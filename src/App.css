@@ -11,6 +11,13 @@
 
 .App-intro {
   font-size: large;
+  display: flex;
+}
+
+.card-deck{
+  height: 100%;
+  width: 100%;
+  margin: 5px;
 }
 
 @keyframes App-logo-spin {

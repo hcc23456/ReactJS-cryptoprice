@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
 import './App.css';
+import Card from 'react-bootstrap/Card';
+import CardDeck from 'react-bootstrap/CardDeck';
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar';
+import Button from 'react-bootstrap/Button';
 
 class App extends Component {
   constructor(props) {
@@ -21,6 +25,16 @@ class App extends Component {
     this.setState({ isLoading: true }); //will cause rendering
     this.makeRemoteRequest();
     console.log("loading"); //testing
+
+    //auto update every 30secs
+    this.timerID = setInterval(
+      () => this.makeRemoteRequest(),
+      10000
+    );
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerID);
   }
 
   makeRemoteRequest = () => { //THIS WORKS-setState IS ASYNC SO WILL NOT RENDER IMMEDIATELY
@@ -68,42 +82,10 @@ class App extends Component {
       });
   };
 
-  /*
-  CryptoListItemSeparator = () => { //is an object
-    return (
-      <View
-        style={{
-          height: 5,
-          width: "100%",
-          backgroundColor: "white",
-          padding: 10,
-        }}
-      />
-    );
-  }
-  */
-
-  /*
-  render() { //display in UI
-    return (
-      <View style = {{justifyContent: 'center',alignItems: 'center', padding:20}}>
-      
-        <Text style={{fontSize:20}}>Latest</Text>
-        <FlatList 
-          data={ this.state.CryptoListItems } //set data to array
-          ItemSeparatorComponent = {this.CryptoListItemSeparator}
-          renderItem={({item}) => <Text style={{textAlign: 'center', fontSize:20, fontWeight: "bold"}}>
-            {item.key} {item.USD}
-          </Text>} //references data in format set
-        />
-        <Button title="Refresh" onPress={() => this.makeRemoteRequest()}  />
-      </View>
-    );
-  }
-  */
-  buttonClicked() {
+  //if using button
+  /*buttonClicked() { 
     this.makeRemoteRequest(); //binded scope
-  }
+  }*/
 
   render() { //display
   const { error, loading, CryptoListItems } = this.state;
@@ -123,15 +105,22 @@ class App extends Component {
       return (
         <div className="App">
           <div className="App-intro">
-            <ul>
+            <CardDeck >
               {CryptoListItems.map(crypto => (
-                <li key={crypto.key}>
-                  {crypto.key} {crypto.USD}
-                </li>
+                <Card key={crypto.key}> {/*need key*/ }
+                  <Card.Body>
+                    <Card.Title>{crypto.key}</Card.Title>
+                    <Card.Text>
+                      {crypto.USD}
+                    </Card.Text>
+                  </Card.Body>
+                  <Card.Footer>
+                    <small className="text-muted">Price in USD</small>
+                  </Card.Footer>
+                </Card>
               ))}
-            </ul>
+            </CardDeck>
           </div>
-          <button onClick={this.buttonClicked.bind(this)}>Refresh Prices</button> {/* binds event handler button */}
         </div>
       );
     }
@@ -139,3 +128,10 @@ class App extends Component {
 } //end class
 
 export default App;
+
+/*
+{/* binds event handler button, if using button }
+<ButtonToolbar>
+  {<Button onClick={this.buttonClicked.bind(this)} variant="primary">Refresh Prices</Button> 
+</ButtonToolbar>}
+*/

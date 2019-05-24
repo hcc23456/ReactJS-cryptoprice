@@ -2,4 +2,4 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 npx create-react-app
 npm start
-
+npm install react-bootstrap bootstrap
