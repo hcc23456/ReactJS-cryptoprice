@@ -12,6 +12,7 @@ class App extends Component {
     this.state = { //variables to use
       loading: false,
       error: null,
+      flash: false, //for color flash
       /*CryptoListItems: [ //for testing
         {key: "BTC"},
         {key: "ETH"},
@@ -33,13 +34,22 @@ class App extends Component {
     );
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    //flash color if any prices change
+    for(var i=0; i <= prevState.CryptoListItems.length-1; i++){
+      if (prevState.CryptoListItems[i].USD !== this.state.CryptoListItems[i].USD) {
+        this.setState({flash: true}); //trigger flash
+      }
+    }
+  }
+
   componentWillUnmount() {
     clearInterval(this.timerID);
   }
 
   makeRemoteRequest = () => { //THIS WORKS-setState IS ASYNC SO WILL NOT RENDER IMMEDIATELY
     const url = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,LTC&tsyms=USD`;
-    this.setState({ loading: true });
+    this.setState({ loading: true, flash:false }); //reset flash set to false before every api call
     fetch(url)
       .then(function(response){ //gets the raw data
         console.log("getting data"); //testing
@@ -48,7 +58,7 @@ class App extends Component {
       .then(function(jsonFromServer){ //jsonFromServer is the above json formatted data response
         console.log("data is good" + jsonFromServer.BTC.USD); //testing
 
-        //map object into array for rendering-needs to be array for flatlist
+        //map object into array for rendering
         var formattedDataforFlatList = []; //ARRAY OF OBJECTS
 
         //destructure json
@@ -63,7 +73,7 @@ class App extends Component {
             price = extractedPrice;
           }
 
-          var formattedObj = {key:symbol, USD:price} //set key value or trying to access key itself, vs key value in flatlist is nightmare 
+          var formattedObj = {key:symbol, USD:price} //set key value or trying to access key itself
           formattedDataforFlatList.push(formattedObj);
           console.log(formattedObj); //testing
         }
@@ -75,7 +85,7 @@ class App extends Component {
           error: null,
           loading: true,
         });
-      }.bind(this)) //need to reference current scope or jsonObject var is undefined-or use arrow notatio functions as below
+      }.bind(this)) //need to reference current scope or jsonObject var is undefined-or use arrow notation functions as below
       .catch(function(error) {
         console.log(error);
         this.setState({ error, loading: false });
@@ -110,7 +120,8 @@ class App extends Component {
                 <Card key={crypto.key}> {/*need key*/ }
                   <Card.Body>
                     <Card.Title>{crypto.key}</Card.Title>
-                    <Card.Text>
+                    {/*below for color update on state change-noupdate is default*/ }
+                    <Card.Text id={crypto.key} className={this.state.flash?'update':'noupdate'}>
                       {crypto.USD}
                     </Card.Text>
                   </Card.Body>
